@@ -28,3 +28,4 @@
 - Late joiner syncing
 - Master Only Toggle
 - Youtube "start at"
+- In-game error screens
