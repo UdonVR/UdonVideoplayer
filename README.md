@@ -15,7 +15,7 @@
 
 #### The latest VRChat SDK and UdonSharp versions are required.
 
-[UdonSharp] https://github.com/MerlinVR/UdonSharp/releases/tag/v0.18.1
+[UdonSharp] https://github.com/MerlinVR/UdonSharp/releases/
 
 [VRC SDK] https://vrchat.com/home/download
 
