@@ -19,9 +19,6 @@
 
 [VRC SDK] https://vrchat.com/home/download
 
-### Current known issues:
-- None
-
 ### Current Features:
 - Emission buttons (Off, Low, Med, High)
 - Looping
