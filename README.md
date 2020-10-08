@@ -1,5 +1,5 @@
 # A fully featured Udon Video Player
-![](https://github.com/VrcUdon/Udon/raw/master/Basics/Videoplayer/github/World%20Icon.png)
+![](https://raw.githubusercontent.com/VrcUdon/UdonVideoplayer/main/.github/World%20Icon_small.png)
 ---------------------
 
 <p align="center">
