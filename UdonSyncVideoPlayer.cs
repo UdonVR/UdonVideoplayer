@@ -279,8 +279,18 @@ namespace UdonVR.Takato
         }
 
 
-
         public void TakeOwner()
+        {
+            if (Networking.IsMaster)
+            {
+                DoTakeOwner();
+            }
+            else if (MasterOnlyScript.syncedMasterOnly == false)
+            {
+                DoTakeOwner();
+            }
+        }
+        private void DoTakeOwner()
         {
             //Debug.Log("[UdonSyncVideoPlayer] TakeOWner Called!");
             if (!Networking.IsOwner(gameObject))
