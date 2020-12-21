@@ -15,6 +15,7 @@ namespace UdonVR.Takato
         public VRCUrl videoURL;
         public bool autoPlay;
         public VRCUrlInputField videoURLInputField;
+        public MasterOnly MasterOnlyScript;
 
         public Text videoTime;
         public Slider videoTimeBar;
@@ -277,6 +278,7 @@ namespace UdonVR.Takato
             _forcePlay = true;
             _retries = 0;
         }
+
 
 
         public void TakeOwner()
