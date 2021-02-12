@@ -29,5 +29,5 @@
 - Auto play
 - Late joiner syncing
 - Master Only Toggle
-- Youtube "start at"
+- Youtube time stamp support
 - In-game error screens
