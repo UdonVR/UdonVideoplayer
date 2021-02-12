@@ -24,6 +24,8 @@
 - Looping
 - Time bar scrubbing (Local only display)
 - Realtime GI
+  - In-Game selecter for Realtime GI update rate (default every 5 frames)
+  - Can be turned off entirely
 - Auto play
 - Late joiner syncing
 - Master Only Toggle
