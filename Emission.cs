@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.Udon;
 using VRC.SDK3.Video.Components.AVPro;
@@ -11,78 +12,87 @@ namespace UdonVR.Childofthebeast
     public class Emission : UdonSharpBehaviour
     {
         public MeshRenderer ScreenMesh;
-        private Material ScreenMaterial;
         public int Material_Index;
         public bool SharedMerial = false;
-        private float CurrentEmission = 1;
-        private bool IsOn = true;
         public bool DefaultOff = false;
         public bool UpdateRealtimeGI = false;
-
         public GameObject[] ButtonFills;
+        public int FrameSkip = 5;
+        public GameObject FrameSkipUI;
+
+        private Material _ScreenMaterial;
+        private float _CurrentEmission = 1;
+        private bool _IsOn = true;
+        private int _Frame = 0;
+        private InputField _FrameSkipFeild;
 
         private void Start()
         {
             if (ScreenMesh == null) ScreenMesh = gameObject.GetComponent<MeshRenderer>();
             if (SharedMerial)
             {
-                ScreenMaterial = ScreenMesh.sharedMaterials[Material_Index];
+                _ScreenMaterial = ScreenMesh.sharedMaterials[Material_Index];
             }
             else
             {
-                ScreenMaterial = ScreenMesh.materials[Material_Index];
+                _ScreenMaterial = ScreenMesh.materials[Material_Index];
             }
 
-            ScreenMaterial.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+            _ScreenMaterial.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
 
             if (DefaultOff) SetHide();
 
+            if (UpdateRealtimeGI)
+            {
+                FrameSkipUI.SetActive(true);
+                _FrameSkipFeild = FrameSkipUI.GetComponentInChildren<InputField>();
+            }
         }
         public void SetHide()
         {
-            if (!IsOn)
+            if (!_IsOn)
             {
                 SetEmission();
             } else
             {
-                ScreenMaterial.SetFloat("_Emission", 0);
-                IsOn = false;
+                _ScreenMaterial.SetFloat("_Emission", 0);
+                _IsOn = false;
                 if (ScreenMesh != null)
                     RendererExtensions.UpdateGIMaterials(ScreenMesh);
             }
         }
         public void SetOff()
         {
-            if (CurrentEmission != .1f)
+            if (_CurrentEmission != .1f)
             {
                 ButtonFills[0].SetActive(true);
                 ButtonFills[1].SetActive(false);
                 ButtonFills[2].SetActive(false);
-                CurrentEmission = .1f;
+                _CurrentEmission = .1f;
                 SetEmission();
             }
             else Set0();
         }
         public void Set1()
         {
-            if (CurrentEmission != 1f)
+            if (_CurrentEmission != 1f)
             {
                 ButtonFills[1].SetActive(true);
                 ButtonFills[0].SetActive(false);
                 ButtonFills[2].SetActive(false);
-                CurrentEmission = 1f;
+                _CurrentEmission = 1f;
                 SetEmission();
             }
             else Set0();
         }
         public void Set2()
         {
-            if (CurrentEmission != 2f)
+            if (_CurrentEmission != 2f)
             {
                 ButtonFills[2].SetActive(true);
                 ButtonFills[1].SetActive(false);
                 ButtonFills[0].SetActive(false);
-                CurrentEmission = 2f;
+                _CurrentEmission = 2f;
                 SetEmission();
             }
             else Set0();
@@ -92,21 +102,51 @@ namespace UdonVR.Childofthebeast
             ButtonFills[2].SetActive(false);
             ButtonFills[1].SetActive(false);
             ButtonFills[0].SetActive(false);
-            CurrentEmission = 0f;
-            ScreenMaterial.SetFloat("_Emission", CurrentEmission);
-            IsOn = false;
+            _CurrentEmission = 0f;
+            _ScreenMaterial.SetFloat("_Emission", _CurrentEmission);
+            _IsOn = false;
             RendererExtensions.UpdateGIMaterials(ScreenMesh);
         }
 
         public void SetEmission()
         {
-            ScreenMaterial.SetFloat("_Emission", CurrentEmission);
-            IsOn = true;
+            _ScreenMaterial.SetFloat("_Emission", _CurrentEmission);
+            _IsOn = true;
         }
         private void Update()
         {
-            if (ScreenMesh != null && IsOn && UpdateRealtimeGI)
-                RendererExtensions.UpdateGIMaterials(ScreenMesh);
+            if (_Frame >= FrameSkip)
+            {
+                if (ScreenMesh != null && _IsOn && UpdateRealtimeGI)
+                    RendererExtensions.UpdateGIMaterials(ScreenMesh);
+                _Frame = 0;
+
+            } else
+            {
+                _Frame++;
+            }
+        }
+
+        public void FrameUp()
+        {
+            FrameSkip++;
+            _FrameSkipFeild.text = FrameSkip.ToString();
+        }
+
+        public void FrameDown()
+        {
+            if (FrameSkip <= 0) return;
+            FrameSkip--;
+            _FrameSkipFeild.text = FrameSkip.ToString();
+        }
+
+        public void FrameSet()
+        {
+            int _var = 0;
+            int.TryParse(_FrameSkipFeild.text, out _var);
+            if (_var <= 0) _var = 0;
+            FrameSkip = _var;
+            _FrameSkipFeild.text = FrameSkip.ToString();
         }
     }
 }
