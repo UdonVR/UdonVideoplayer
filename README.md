@@ -31,3 +31,10 @@
 - Master Only Toggle
 - Youtube time stamp support
 - In-game error screens
+
+
+Need a server to host videos from?
+
+Bunny offers really cheap hosting that works in VRC
+
+https://bunnycdn.com/?ref=wmadqwlxxu
