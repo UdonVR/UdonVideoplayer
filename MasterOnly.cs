@@ -3,6 +3,7 @@ using UdonSharp;
 using UnityEngine.UI;
 using VRC.SDK3.Components;
 using VRC.SDKBase;
+using UdonVR.Takato.VideoPlayer;
 
 namespace UdonVR.Takato
 {
@@ -15,9 +16,9 @@ namespace UdonVR.Takato
         public Button pauseButton;
         public Button stopButton;
         public Slider timeBar;
-        [UdonSynced] public bool syncedMasterOnly;
+        [UdonSynced] public bool syncedMasterOnly = true;
         private bool _masterOnly;
-
+        private bool _isCurrentMaster;
 
         private void Start()
         {
@@ -26,6 +27,8 @@ namespace UdonVR.Takato
                 masterToggle.isOn = syncedMasterOnly;
                 //MasterTogle();
             }
+            _isCurrentMaster = Networking.IsMaster;
+           
         }
 
         public void MasterToggleButton() //Call RunProgram on this method
@@ -64,7 +67,14 @@ namespace UdonVR.Takato
                 timeBar.interactable = videoPlayer.EnableTimeBar();
             }
         }
-
+        public override void OnPlayerLeft(VRCPlayerApi player)
+        {
+            if (!_isCurrentMaster && Networking.IsMaster)
+            {
+                _isCurrentMaster = true;
+                OnOwnershipTransferred();
+            }
+        }
         public override void OnDeserialization()
         {
             if (!Networking.IsMaster)

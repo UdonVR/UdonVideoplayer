@@ -4,11 +4,11 @@ using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.SDK3.Video.Components.Base;
 
-namespace UdonVR.Takato
+namespace UdonVR.Takato.VideoPlayer
 {
     public class LoopToggle : UdonSharpBehaviour
     {
-        public BaseVRCVideoPlayer videoPlayer;
+        public UdonSyncVideoPlayer videoPlayer;
 
 
         [UdonSynced] bool _loopSynced;
@@ -23,14 +23,12 @@ namespace UdonVR.Takato
             loopToggle.isOn = value;
             loopToggle.enabled = true;
         }
-        private void Start()
+
+        public void Init()
         {
-            if (Networking.IsMaster)
-            {
-                _loopSynced = videoPlayer.Loop;
-                _loop = _loopSynced;
-                ToggleValue(_loopSynced);
-            }
+            _loopSynced = videoPlayer.videoPlayer.Loop;
+            _loop = _loopSynced;
+            ToggleValue(_loopSynced);
         }
 
         public void ToggleButton() //Call RunProgram on this method
@@ -48,7 +46,9 @@ namespace UdonVR.Takato
         private void DoToggle()
         {
             _loop = _loopSynced;
-            videoPlayer.Loop = _loopSynced;
+            videoPlayer.avProVideoPlayer.Loop = _loopSynced;
+            videoPlayer.unityVideoPlayer.Loop = _loopSynced;
+            //videoPlayer.Loop = _loopSynced;
             if (!Networking.IsMaster)
             {
                 ToggleValue(_loopSynced);

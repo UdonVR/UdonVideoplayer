@@ -1,6 +1,6 @@
 ﻿
 using UdonSharp;
-using UdonVR.Takato;
+using UdonVR.Takato.VideoPlayer;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDKBase;
