@@ -11,6 +11,11 @@ namespace UdonVR.Childofthebeast
 {
     public class Emission : UdonSharpBehaviour
     {
+        #if UNITY_ANDROID
+        private bool isQuest = true;
+        #else
+        private bool isQuest = false;
+        #endif
         public MeshRenderer ScreenMesh;
         public int Material_Index;
         public bool SharedMerial = false;
@@ -24,10 +29,12 @@ namespace UdonVR.Childofthebeast
         private float _CurrentEmission = 1;
         private bool _IsOn = true;
         private int _Frame = 0;
-        private InputField _FrameSkipFeild;
+        public InputField FrameSkipFeild;
+        public Text FramSkipText;
 
         private void Start()
         {
+            if (!isQuest) InitPC();
             if (ScreenMesh == null) ScreenMesh = gameObject.GetComponent<MeshRenderer>();
             if (SharedMerial)
             {
@@ -45,7 +52,6 @@ namespace UdonVR.Childofthebeast
             if (UpdateRealtimeGI)
             {
                 FrameSkipUI.SetActive(true);
-                _FrameSkipFeild = FrameSkipUI.GetComponentInChildren<InputField>();
             }
         }
         public void SetHide()
@@ -130,23 +136,40 @@ namespace UdonVR.Childofthebeast
         public void FrameUp()
         {
             FrameSkip++;
-            _FrameSkipFeild.text = FrameSkip.ToString();
+            UpdateFeild(FrameSkip.ToString());
         }
 
         public void FrameDown()
         {
             if (FrameSkip <= 0) return;
             FrameSkip--;
-            _FrameSkipFeild.text = FrameSkip.ToString();
+            UpdateFeild(FrameSkip.ToString());
         }
 
         public void FrameSet()
         {
             int _var = 0;
-            int.TryParse(_FrameSkipFeild.text, out _var);
+            int.TryParse(FrameSkipFeild.text, out _var);
             if (_var <= 0) _var = 0;
             FrameSkip = _var;
-            _FrameSkipFeild.text = FrameSkip.ToString();
+            UpdateFeild(FrameSkip.ToString());
+        }
+
+        private void UpdateFeild(string _str)
+        {
+            if (isQuest)
+            {
+                FramSkipText.text = _str;
+            }
+            else
+            {
+                FrameSkipFeild.text = _str;
+            }
+        }
+
+        private void InitPC()
+        {
+            FrameSkipFeild.interactable = true;
         }
     }
 }
