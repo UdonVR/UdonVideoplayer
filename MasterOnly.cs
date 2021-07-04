@@ -56,7 +56,7 @@ namespace UdonVR.Takato
                 timeBar.interactable = !_masterOnly;
         }
 
-        public override void OnOwnershipTransferred()
+        public override void OnOwnershipTransferred(VRCPlayerApi _player)
         {
             if (Networking.IsMaster)
             {
@@ -67,12 +67,12 @@ namespace UdonVR.Takato
                 timeBar.interactable = videoPlayer.EnableTimeBar();
             }
         }
-        public override void OnPlayerLeft(VRCPlayerApi player)
+        public override void OnPlayerLeft(VRCPlayerApi _player)
         {
             if (!_isCurrentMaster && Networking.IsMaster)
             {
                 _isCurrentMaster = true;
-                OnOwnershipTransferred();
+                OnOwnershipTransferred(_player);
             }
         }
         public override void OnDeserialization()

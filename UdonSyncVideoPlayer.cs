@@ -308,7 +308,7 @@ namespace UdonVR.Takato.VideoPlayer
             return _paused && !_isTooLong;
         }
 
-        public override void OnOwnershipTransferred()
+        public override void OnOwnershipTransferred(VRCPlayerApi _player)
         {
             ownerText.text = Networking.GetOwner(gameObject).displayName;
             //Debug.Log($"[UdonSyncVideoPlayer] Owner changed to {Networking.LocalPlayer.displayName}");
@@ -962,7 +962,7 @@ namespace UdonVR.Takato.VideoPlayer
             if (_debug)
             {
                 DebugString = (DebugString + "\n" + LogPrefix + _Str);
-                Debug.Log("DebugOutText");
+                Debug.Log(DebugString);
                 if (DebugOutText != null) DebugOutText.text = DebugString;
             }
         }
