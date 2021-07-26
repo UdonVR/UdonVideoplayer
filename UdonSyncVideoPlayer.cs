@@ -156,7 +156,7 @@ namespace UdonVR.Takato.VideoPlayer
                 masterText.text = Networking.GetOwner(masterText.gameObject).displayName;
                 ownerText.text = Networking.GetOwner(gameObject).displayName;
             }
-            if (!isQuest)
+            if (isQuest == false)
             {
                 InitPC();
             }
@@ -316,6 +316,7 @@ namespace UdonVR.Takato.VideoPlayer
 
         public override void OnPlayerLeft(VRCPlayerApi player)
         {
+            if (player.isLocal) return;
             masterText.text = Networking.GetOwner(masterText.gameObject).displayName;
         }
 
@@ -716,7 +717,7 @@ namespace UdonVR.Takato.VideoPlayer
             }
             else
             {//The Watchers pause it and wait for sync
-                if (!_ownerPlaying)
+                if (!_ownerPlaying || _ownerPaused)
                 {
                     videoPlayer.Pause();
                     _waitForSync = true;
@@ -954,6 +955,7 @@ namespace UdonVR.Takato.VideoPlayer
 
         private void InitPC()
         {
+            DebugOut("InitPC");
             autoResyncRateInput.interactable = true;
         }
 
