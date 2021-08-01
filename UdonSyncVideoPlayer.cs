@@ -123,6 +123,19 @@ namespace UdonVR.Takato.VideoPlayer
         {
         }
 
+        public override bool OnOwnershipRequest(VRCPlayerApi requestingPlayer, VRCPlayerApi requestedOwner)
+        {
+            if (MasterOnlyScript.syncedMasterOnly)
+            {
+                if (requestedOwner.isMaster) return false;
+                if (requestingPlayer.isMaster) return true;
+            } else
+            {
+                return true;
+            }
+            return false;
+        }
+
         public void Init()
         {
             if (Networking.LocalPlayer != null)
@@ -227,11 +240,24 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void ChangeVideoUrlVRC(VRCUrl url)
         {
-            if (!Networking.IsOwner(gameObject)) return;
-            if (url.Get() != "" && url != _syncedURL)
+            if (MasterOnlyScript.syncedMasterOnly)
             {
-                _syncedURL = url;
-                ChangeVideoUrl();
+                if (Networking.IsMaster && Networking.IsOwner(gameObject))
+                {
+                    if (url.Get() != "" && url != _syncedURL)
+                    {
+                        _syncedURL = url;
+                        ChangeVideoUrl();
+                    }
+                }
+            } else
+            {
+                if (!Networking.IsOwner(gameObject)) return;
+                if (url.Get() != "" && url != _syncedURL)
+                {
+                    _syncedURL = url;
+                    ChangeVideoUrl();
+                }
             }
         }
 
