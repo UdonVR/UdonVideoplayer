@@ -227,6 +227,7 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void ChangeVideoUrlVRC(VRCUrl url)
         {
+            if (!Networking.IsOwner(gameObject)) return;
             if (url.Get() != "" && url != _syncedURL)
             {
                 _syncedURL = url;
