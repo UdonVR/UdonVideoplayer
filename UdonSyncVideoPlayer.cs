@@ -1,32 +1,34 @@
 ﻿using System;
+using TMPro;
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDK3.Components;
 using VRC.SDK3.Components.Video;
+using VRC.SDK3.Video.Components;
+using VRC.SDK3.Video.Components.AVPro;
 using VRC.SDK3.Video.Components.Base;
 using VRC.SDKBase;
-using TMPro;
-using VRC.SDK3.Video.Components.AVPro;
-using VRC.SDK3.Video.Components;
+
 namespace UdonVR.Takato.VideoPlayer
 {
     public class UdonSyncVideoPlayer : UdonSharpBehaviour
     {
-
         #region Varibles
 
-        #if UNITY_ANDROID
+#if UNITY_ANDROID
         private bool isQuest = true;
-        #else
+#else
         private bool isQuest = false;
-        #endif
+#endif
 
         public VRCAVProVideoPlayer avProVideoPlayer;
         public VRCUnityVideoPlayer unityVideoPlayer;
 
-        [HideInInspector] public
+        [HideInInspector]
+        public
         BaseVRCVideoPlayer videoPlayer;
+
         public VRCUrl videoURL;
         public bool autoPlay;
         public VRCUrlInputField videoURLInputField;
@@ -43,8 +45,6 @@ namespace UdonVR.Takato.VideoPlayer
         public Text ownerText;
         public float syncFrequency = 5;
         public float syncThreshold = 1;
-
-
 
         private float _lastSyncTime = 0;
         private float _delayTime;
@@ -68,12 +68,12 @@ namespace UdonVR.Takato.VideoPlayer
         private bool _newVideo = true;
         private const int VRCUNITY_PLAYER_MODE = 1;
         private const int AVPRO_PLAYER_MODE = 0;
+
         [Range(0, 1)]
         public int defaultVideoPlayer = AVPRO_PLAYER_MODE;
+
         [UdonSynced] private int _currentVideoMode = AVPRO_PLAYER_MODE;
         private int _localVideoMode = AVPRO_PLAYER_MODE;
-
-        private bool _debug = false;
 
         public GameObject[] ErrorScreens;
         // 0 VP00
@@ -87,9 +87,11 @@ namespace UdonVR.Takato.VideoPlayer
         public Image VRCUnity_fill;
 
         #region Auto resync Var
+
         [Header("Resync")]
         [Range(0.001f, 0.1f)]
         public float ResyncTime = .1f;
+
         public int autoResyncMinutes = 5;
         public GameObject AutoResyncFill;
         public InputField autoResyncRateInput;
@@ -99,17 +101,23 @@ namespace UdonVR.Takato.VideoPlayer
         private bool _resyncedVideo;
         private bool _reloadedVideo;
         private bool _forceResync;
+
         [HideInInspector]
         public bool autoResync;
+
         private float _autoResyncRate;
         private float _autoResyncTime;
-        #endregion
 
+        #endregion Auto resync Var
+
+        private bool _debug = false;
         public TextMeshProUGUI DebugOutText;
+        public TextMeshProUGUI DebugVarsOut;
         private string LogPrefix = "[UdonSyncVideoPlayer]";
         private string DebugString;
+        private string _debugVars;
 
-        #endregion
+        #endregion Varibles
 
         private void Start()
         {
@@ -118,12 +126,17 @@ namespace UdonVR.Takato.VideoPlayer
         public void Init()
         {
             if (Networking.LocalPlayer != null)
+            {
                 if (Networking.LocalPlayer.displayName == "Takato" || Networking.LocalPlayer.displayName == "Takato65" || Networking.LocalPlayer.displayName == "child of the beast")
+                {
                     _debug = true;
+                }
+            }
             if (Networking.LocalPlayer == null)
             {
                 _debug = true;
             }
+
             DebugOut("Initalizing");
 
             //videoPlayer.Loop = false;
@@ -160,6 +173,7 @@ namespace UdonVR.Takato.VideoPlayer
             {
                 InitPC();
             }
+
             DebugOut("Initalizing - Successful");
         }
 
@@ -173,6 +187,7 @@ namespace UdonVR.Takato.VideoPlayer
                     RetrySyncedVideo();
             }
         }
+
         public void ChangeVideoPlayerVRCUnity()
         {
             if (Networking.IsOwner(gameObject))
@@ -183,7 +198,8 @@ namespace UdonVR.Takato.VideoPlayer
                     RetrySyncedVideo();
             }
         }
-        void SetVideoModeAvPro()
+
+        private void SetVideoModeAvPro()
         {
             DebugOut("Changing Player to AvPro");
             AVPro_fill.enabled = true;
@@ -195,7 +211,7 @@ namespace UdonVR.Takato.VideoPlayer
             //screenMesh.sharedMaterial.SetTexture("_MainTex", aVProRenderTextureSource.sharedMaterial.GetTexture("_MainTex"));
         }
 
-        void SetVideoModeVRCUnity()
+        private void SetVideoModeVRCUnity()
         {
             DebugOut("Changing Player to VRCUnity");
             AVPro_fill.enabled = false;
@@ -221,10 +237,10 @@ namespace UdonVR.Takato.VideoPlayer
         public void ChangeVideoUrl()
         {
             //When the Owner changes the URL
-            //Debug.Log("[UdonSyncVideoPlayer] URL Changed Start");
+            DebugOut("URL Changed Start");
             if (Networking.IsOwner(gameObject))
             {
-                //Debug.Log("[UdonSyncVideoPlayer] URL Changed Owner");
+                DebugOut("URL Changed Owner");
 
                 //Set as new Video
                 _newVideo = true;
@@ -237,12 +253,12 @@ namespace UdonVR.Takato.VideoPlayer
                 {
                     if (!isQuest)
                     {
-                    int startIndex;
-                    startIndex = urlStr.IndexOf("?t=");
+                        int startIndex;
+                        startIndex = urlStr.IndexOf("?t=");
 
-                    if (startIndex == -1) startIndex = urlStr.IndexOf("&t=");
-                    if (startIndex == -1) startIndex = urlStr.IndexOf("&start=");
-                    if (startIndex == -1) startIndex = urlStr.IndexOf("?start=");
+                        if (startIndex == -1) startIndex = urlStr.IndexOf("&t=");
+                        if (startIndex == -1) startIndex = urlStr.IndexOf("&start=");
+                        if (startIndex == -1) startIndex = urlStr.IndexOf("?start=");
 
                         if (startIndex != -1)
                         {
@@ -291,7 +307,7 @@ namespace UdonVR.Takato.VideoPlayer
             DebugOut(" URL Changed Start");
             if (Networking.IsOwner(gameObject))
             {
-                //Debug.Log("[UdonSyncVideoPlayer] URL Changed Owner");
+                DebugOut(" URL Changed Owner");
                 if (videoURLInputField.GetUrl().Get().Trim() != "" && videoURLInputField.GetUrl() != _syncedURL)
                 {
                     _syncedURL = videoURLInputField.GetUrl();
@@ -311,7 +327,7 @@ namespace UdonVR.Takato.VideoPlayer
         public override void OnOwnershipTransferred(VRCPlayerApi _player)
         {
             ownerText.text = Networking.GetOwner(gameObject).displayName;
-            //Debug.Log($"[UdonSyncVideoPlayer] Owner changed to {Networking.LocalPlayer.displayName}");
+            DebugOut($"Owner changed to {Networking.LocalPlayer.displayName}");
         }
 
         public override void OnPlayerLeft(VRCPlayerApi player)
@@ -322,23 +338,50 @@ namespace UdonVR.Takato.VideoPlayer
 
         private void DebugLog()
         {
-            DebugOut($"[UdonSyncVideoPlayer] ==========================================");
-            DebugOut($"[UdonSyncVideoPlayer] _loadedVideoNumber>> {_videoNumber}");
-            DebugOut($"[UdonSyncVideoPlayer] _ownerPlaying>> {_ownerPlaying}");
-            DebugOut($"[UdonSyncVideoPlayer] _ownerPaused>> {_ownerPaused}");
-            DebugOut($"[UdonSyncVideoPlayer] _paused>> {_paused}");
-            DebugOut($"[UdonSyncVideoPlayer] _waitForSync>> {_waitForSync}");
-            DebugOut($"[UdonSyncVideoPlayer] _syncedURL>> {_syncedURL}");
-            DebugOut($"[UdonSyncVideoPlayer] videoPlayer.IsPlaying>> {videoPlayer.IsPlaying}");
-            DebugOut($"[UdonSyncVideoPlayer] videoPlayer.IsReady>> {videoPlayer.IsReady}");
-            DebugOut($"[UdonSyncVideoPlayer] videoPlayer Owner>> {Networking.GetOwner(gameObject).displayName}");
-            DebugOut($"[UdonSyncVideoPlayer] _forcePlay>> {_forcePlay}");
-            //Debug.Log($"[UdonSyncVideoPlayer] {vRCUnityRenderTexture.}");
-            DebugOut($"[UdonSyncVideoPlayer] ==========================================");
+            DebugOut("==========================================");
+            DebugOut($"_loadedVideoNumber>> {_videoNumber}");
+            DebugOut($"_ownerPlaying>> {_ownerPlaying}");
+            DebugOut($"_ownerPaused>> {_ownerPaused}");
+            DebugOut($"_paused>> {_paused}");
+            DebugOut($"_waitForSync>> {_waitForSync}");
+            DebugOut($"_syncedURL>> {_syncedURL}");
+            DebugOut($"videoPlayer.IsPlaying>> {videoPlayer.IsPlaying}");
+            DebugOut($"videoPlayer.IsReady>> {videoPlayer.IsReady}");
+            DebugOut($"videoPlayer Owner>> {Networking.GetOwner(gameObject).displayName}");
+            DebugOut($"_forcePlay>> {_forcePlay}");
+            DebugOut("==========================================");
+        }
+
+        private void DebugUpdate()
+        {
+            _debugVars = "";
+            _debugVars = (_debugVars + "==========================================");
+            _debugVars = (_debugVars + $"\n_loadedVideoNumber>> {_videoNumber}");
+            _debugVars = (_debugVars + $"\n_ownerPlaying>> {_ownerPlaying}");
+            _debugVars = (_debugVars + $"\n_ownerPaused>> {_ownerPaused}");
+            _debugVars = (_debugVars + $"\n_paused>> {_paused}");
+            _debugVars = (_debugVars + $"\n_waitForSync>> {_waitForSync}");
+            if (_syncedURL != null) _debugVars = (_debugVars + $"\n_syncedURL>> {_syncedURL}");
+            _debugVars = (_debugVars + $"\nvideoPlayer.IsPlaying>> {videoPlayer.IsPlaying}");
+            _debugVars = (_debugVars + $"\nvideoPlayer.IsReady>> {videoPlayer.IsReady}");
+            _debugVars = (_debugVars + $"\nvideoPlayer Owner>> {Networking.GetOwner(gameObject).displayName}");
+            _debugVars = (_debugVars + $"\n_forcePlay>> {_forcePlay}");
+            _debugVars = (_debugVars + "\n==========================================");
+            DebugVarsOut.text = _debugVars;
         }
 
         private void Update()
         {
+            if (_debug)
+            {
+                if (Input.GetKeyDown(KeyCode.P))
+                    DebugLog();
+
+                if (DebugVarsOut != null)
+                {
+                    DebugUpdate();
+                }
+            }
             if (Networking.IsOwner(gameObject))
             {
                 SyncVideoIfTime();
@@ -380,16 +423,11 @@ namespace UdonVR.Takato.VideoPlayer
                 }
             }
 
-            if (_debug)
-            {
-                if (Input.GetKeyDown(KeyCode.P))
-                    DebugLog();
-            }
             if (Networking.IsMaster)
             {
                 if (_forcePlay && autoPlay && Time.time > _delayTime)
                 {
-                    Debug.Log($"[UdonSyncVideoPlayer] Auto Play URL {_syncedURL}");
+                    DebugOut($"Auto Play URL {_syncedURL}");
                     videoPlayer.PlayURL(_syncedURL);
                     _delayTime = Time.time + 5f;
                     _retries += 1;
@@ -401,7 +439,7 @@ namespace UdonVR.Takato.VideoPlayer
             {
                 if (_forcePlay && Time.time > _delayTime)
                 {
-                    Debug.Log($"[UdonSyncVideoPlayer] Watcher Load URL {_syncedURL}");
+                    DebugOut($"Watcher Load URL {_syncedURL}");
                     videoPlayer.LoadURL(_syncedURL);
                     _delayTime = Time.time + 7f;
                     _retries += 1;
@@ -429,7 +467,7 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void ResyncReset()
         {
-            Debug.LogWarning("[UdonVR] Playing synced: ResyncReset()");
+            DebugOut("Playing synced: ResyncReset()");
             resyncText.text = "Resync";
             //PanelController.SetResyncText("Resync");
             _resyncedVideo = false;
@@ -437,7 +475,7 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void ReloadReset()
         {
-            Debug.LogWarning("[UdonVR] Playing synced: ReloadReset()");
+            DebugOut("Playing synced: ReloadReset()");
             resyncText.text = _resyncedVideo ? "Reload" : "Resync";
             //PanelController.SetResyncText(_resyncedVideo ? "Reload" : "Resync");
             _reloadedVideo = false;
@@ -445,13 +483,13 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void ResyncVideo()
         {
-            Debug.LogWarning("[UdonVR] Playing synced: ResyncVideo");
+            DebugOut("Playing synced: ResyncVideo");
             if (_resyncedVideo)
             {
-                Debug.LogWarning("[UdonVR] Playing synced: _resyncedVideo");
+                DebugOut("Playing synced: _resyncedVideo");
                 if (!_reloadedVideo)
                 {
-                    Debug.LogWarning("[UdonVR] Playing synced: !_reloadedVideo");
+                    DebugOut("Playing synced: !_reloadedVideo");
                     _reloadedVideo = true;
                     //PanelController.SetResyncText("Wait");
                     resyncText.text = "Wait";
@@ -462,7 +500,7 @@ namespace UdonVR.Takato.VideoPlayer
             }
             else
             {
-                Debug.LogWarning("[UdonVR] Playing synced: !_resyncedVideo");
+                DebugOut("Playing synced: !_resyncedVideo");
                 _resyncedVideo = true;
 
                 resyncText.text = _reloadedVideo ? "Wait" : "Reload";
@@ -475,11 +513,11 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void RetrySyncedVideo()
         {
-            Debug.Log("[UdonVR] Playing synced: RetrySyncedVideo()");
+            DebugOut("Playing synced: RetrySyncedVideo()");
             videoPlayer.LoadURL(_syncedURL);
             SyncVideo();
             _loadedVideoURL = _syncedURL;
-            Debug.Log(string.Format("[UdonSyncVideoPlayer] Playing synced: {0}", _syncedURL));
+            DebugOut(string.Format("Playing synced: {0}", _syncedURL));
 
             //Turn on forcePlay and set delayTime for repeat tries
             _delayTime = Time.time + 7f;
@@ -500,9 +538,10 @@ namespace UdonVR.Takato.VideoPlayer
             {//Resync video time and log new value
                 videoPlayer.SetTime(offsetTime);
                 _forceResync = false;
-                //Debug.Log(string.Format("[UdonSyncVideoPlayer] Syncing Video to {0:N2}", offsetTime));
+                DebugOut(string.Format("Syncing Video to {0:N2}", offsetTime));
             }
         }
+
         public void ForceSyncVideo()
         {
             _forceResync = true;
@@ -527,6 +566,7 @@ namespace UdonVR.Takato.VideoPlayer
         #endregion Syncing Methods
 
         #region AutoResyncMethods
+
         public void AutoResyncToggle()
         {
             autoResync = !autoResync;
@@ -547,6 +587,7 @@ namespace UdonVR.Takato.VideoPlayer
             //PanelController.AutoResyncRateInput(autoResyncMinutes);
             DebugOut("AutoResyncInit - Successful");
         }
+
         public void AutoResyncSet(int value)
         {
             DebugOut("AutoResyncSet");
@@ -560,15 +601,17 @@ namespace UdonVR.Takato.VideoPlayer
             //PanelController.AutoResyncRateInput(autoResyncMinutes);
             DebugOut("AutoResyncSet - Successful");
         }
+
         public void AutoResyncDown()
         {
             DebugOut("AutoResyncDown");
             autoResyncMinutes = Mathf.Max(1, autoResyncMinutes - 1);
             _autoResyncRate = autoResyncMinutes * 60;
             AutoResyncSetFeild(autoResyncMinutes.ToString());
-            
+
             //PanelController.AutoResyncRateInput(autoResyncMinutes);
         }
+
         public void AutoResyncUp()
         {
             DebugOut("AutoResyncUp");
@@ -576,12 +619,13 @@ namespace UdonVR.Takato.VideoPlayer
             autoResyncMinutes++;
             _autoResyncRate = autoResyncMinutes * 60;
             AutoResyncSetFeild(autoResyncMinutes.ToString());
-            
+
             //PanelController.AutoResyncRateInput(autoResyncMinutes);
         }
 
         public void AutoResyncSetFeild(string _str)
         {
+            DebugOut("AutoResyncSetFeild");
             if (isQuest)
             {
                 autoResyncText.text = _str;
@@ -592,7 +636,7 @@ namespace UdonVR.Takato.VideoPlayer
             }
         }
 
-        #endregion
+        #endregion AutoResyncMethods
 
         public void TakeOwner()
         {
@@ -610,10 +654,10 @@ namespace UdonVR.Takato.VideoPlayer
         private void DoTakeOwner()
         {
             DebugOut("DoTakeOwner");
-            //Debug.Log("[UdonSyncVideoPlayer] TakeOWner Called!");
+            DebugOut("TakeOWner Called!");
             if (!Networking.IsOwner(gameObject))
             {
-                //Debug.Log($"[UdonSyncVideoPlayer] Setting Owner to {Networking.LocalPlayer.displayName}");
+                DebugOut($"Setting Owner to {Networking.LocalPlayer.displayName}");
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
                 ownerText.text = Networking.LocalPlayer.displayName;
                 //PanelController.SetOwnerText(Networking.LocalPlayer.displayName);
@@ -652,7 +696,6 @@ namespace UdonVR.Takato.VideoPlayer
                 _videoDuration = "Streaming!";
                 videoTimeBar.value = 1;
                 //PanelController.SetVideoTimeBarValue(1);
-                
             }
         }
 
@@ -670,7 +713,7 @@ namespace UdonVR.Takato.VideoPlayer
         public override void OnVideoReady()
         {
             DebugOut("OnVideoReady");
-            //Debug.Log(string.Format("[UdonSyncVideoPlayer] OnVideoReady {0}", _syncedURL));
+            DebugOut(string.Format("OnVideoReady {0}", _syncedURL));
             if (Networking.IsOwner(gameObject))
             {//The Owner Plays the video when it's ready
                 videoPlayer.Play();
@@ -698,10 +741,10 @@ namespace UdonVR.Takato.VideoPlayer
         }
 
         public override void OnVideoStart()
-        {//Handle OnVideoStart for Owner and Watchers
-            DebugOut("OnVideoStart");
+        {
+            //DebugOut("OnVideoStart");
             ClearErrors();
-            //Debug.Log(string.Format("[UdonSyncVideoPlayer] OnVideoStart {0}", _syncedURL));
+            DebugOut(string.Format("OnVideoStart {0}", _syncedURL));
             videoTimeBar.interactable = false;
             if (Networking.IsOwner(gameObject))
             {//The Owner saves the start time and sets playing to true
@@ -717,11 +760,14 @@ namespace UdonVR.Takato.VideoPlayer
             }
             else
             {//The Watchers pause it and wait for sync
-                if (!_ownerPlaying || _ownerPaused)
+                if (_ownerPaused)
+                    videoPlayer.Pause();
+                else if (!_ownerPlaying)
                 {
                     videoPlayer.Pause();
                     _waitForSync = true;
                 }
+
                 SetUpTimeBar();
             }
         }
@@ -729,10 +775,12 @@ namespace UdonVR.Takato.VideoPlayer
         public override void OnVideoEnd()
         {
             DebugOut(string.Format("Video ended URL: {0}", _syncedURL));
+            _ownerPaused = true;
         }
 
         public override void OnVideoError(VideoError videoError)
-        {//On Video Error, log what went wrong
+        {
+            DebugOut("OnVideoError");
             videoPlayer.Stop();
             //Turn off forcePlay since video has error
             _forcePlay = false;
@@ -793,8 +841,10 @@ namespace UdonVR.Takato.VideoPlayer
                 }
             }
         }
+
         public void ClearErrors()
         {
+            DebugOut("ClearErrors");
             foreach (GameObject _obj in ErrorScreens)
             {
                 _obj.SetActive(false);
@@ -805,11 +855,13 @@ namespace UdonVR.Takato.VideoPlayer
 
         public override void OnPreSerialization()
         {
+            //DebugOut("OnPreSerialization");
             _deserialCount = 0;
         }
 
         public override void OnDeserialization()
         {//Load new video when _videoNumber is changed
+            //DebugOut("OnDeserialization");
             if (!Networking.IsOwner(gameObject))
             {
                 if (_deserialCount < 10)
@@ -869,12 +921,12 @@ namespace UdonVR.Takato.VideoPlayer
                         SyncVideo();
                     }
                 }
-               
             }
         }
 
         public void StopVideo()
         {
+            DebugOut("StopVideo");
             if (Networking.IsOwner(gameObject))
             {
                 _videoStartNetworkTime = 0;
@@ -893,6 +945,7 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void StopVideoWatcher()
         {
+            DebugOut("StopVideoWatcher");
             if (!Networking.IsOwner(gameObject))
             {
                 videoPlayer.Stop();
@@ -901,6 +954,7 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void PlayVideo()
         {
+            DebugOut("PlayVideo");
             if (!videoPlayer.IsPlaying)
             {
                 PauseVideo();
@@ -909,6 +963,7 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void PauseVideo()
         {
+            DebugOut("PauseVideo");
             if (Networking.IsOwner(gameObject))
             {
                 if (videoPlayer.IsPlaying)
@@ -964,7 +1019,7 @@ namespace UdonVR.Takato.VideoPlayer
             if (_debug)
             {
                 DebugString = (DebugString + "\n" + LogPrefix + _Str);
-                Debug.Log(DebugString);
+                Debug.Log(_Str);
                 if (DebugOutText != null) DebugOutText.text = DebugString;
             }
         }
