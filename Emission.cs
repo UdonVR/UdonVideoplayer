@@ -34,7 +34,7 @@ namespace UdonVR.Childofthebeast
 
         private void Start()
         {
-            if (UpdateRealtimeGI) FrameSkipUI.SetActive(true);
+            if (UpdateRealtimeGI && FrameSkipUI != null) FrameSkipUI.SetActive(true);
             if (!isQuest) InitPC();
             if (ScreenMesh == null) ScreenMesh = gameObject.GetComponent<MeshRenderer>();
             if (SharedMerial)
@@ -167,7 +167,7 @@ namespace UdonVR.Childofthebeast
 
         private void InitPC()
         {
-            if (UpdateRealtimeGI) FrameSkipFeild.interactable = true;
+            if (UpdateRealtimeGI && FrameSkipUI != null) FrameSkipFeild.interactable = true;
         }
     }
 }
