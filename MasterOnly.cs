@@ -31,6 +31,20 @@ namespace UdonVR.Takato
            
         }
 
+        public override bool OnOwnershipRequest(VRCPlayerApi requestingPlayer, VRCPlayerApi requestedOwner)
+        {
+            if (syncedMasterOnly)
+            {
+                if (requestedOwner.isMaster) return false;
+                if (requestingPlayer.isMaster) return true;
+            }
+            else
+            {
+                return true;
+            }
+            return false;
+        }
+
         public void MasterToggleButton() //Call RunProgram on this method
         {
             Debug.Log("[UdonVR] MasterToggle!");

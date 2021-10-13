@@ -12,9 +12,9 @@ namespace UdonVR.Childofthebeast
     public class Emission : UdonSharpBehaviour
     {
         #if UNITY_ANDROID
-        private bool isQuest = true;
+            private bool isQuest = true;
         #else
-        private bool isQuest = false;
+            private bool isQuest = false;
         #endif
         public MeshRenderer ScreenMesh;
         public int Material_Index;
@@ -34,6 +34,7 @@ namespace UdonVR.Childofthebeast
 
         private void Start()
         {
+            if (UpdateRealtimeGI && FrameSkipUI != null) FrameSkipUI.SetActive(true);
             if (!isQuest) InitPC();
             if (ScreenMesh == null) ScreenMesh = gameObject.GetComponent<MeshRenderer>();
             if (SharedMerial)
@@ -48,18 +49,14 @@ namespace UdonVR.Childofthebeast
             _ScreenMaterial.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
 
             if (DefaultOff) SetHide();
-
-            if (UpdateRealtimeGI)
-            {
-                FrameSkipUI.SetActive(true);
-            }
         }
         public void SetHide()
         {
             if (!_IsOn)
             {
                 SetEmission();
-            } else
+            }
+            else
             {
                 _ScreenMaterial.SetFloat("_Emission", 0);
                 _IsOn = false;
@@ -127,7 +124,8 @@ namespace UdonVR.Childofthebeast
                     RendererExtensions.UpdateGIMaterials(ScreenMesh);
                 _Frame = 0;
 
-            } else
+            }
+            else
             {
                 _Frame++;
             }
@@ -169,7 +167,7 @@ namespace UdonVR.Childofthebeast
 
         private void InitPC()
         {
-            FrameSkipFeild.interactable = true;
+            if (UpdateRealtimeGI && FrameSkipUI != null) FrameSkipFeild.interactable = true;
         }
     }
 }
