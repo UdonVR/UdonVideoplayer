@@ -117,6 +117,8 @@ namespace UdonVR.Takato.VideoPlayer
         private string DebugString;
         private string _debugVars;
 
+        private bool isStreaming = false;
+
         #endregion Varibles
 
         private void Start()
@@ -577,6 +579,7 @@ namespace UdonVR.Takato.VideoPlayer
 
         public void SyncVideoIfTime()
         {
+            if (isStreaming) return;
             if (_ownerPlaying)
             {
                 if (!_ownerPaused)
@@ -696,6 +699,7 @@ namespace UdonVR.Takato.VideoPlayer
             DebugOut("SetUpTimeBar");
             if (TimeSpan.MaxValue.TotalSeconds >= videoPlayer.GetDuration())
             {
+                
                 DebugOut("TimeSpan.MaxValue.TotalSeconds >= videoPlayer.GetDuration() = true");
                 TimeSpan timeSpan = TimeSpan.FromSeconds(videoPlayer.GetDuration());
                 if (Networking.IsOwner(gameObject))
@@ -712,6 +716,7 @@ namespace UdonVR.Takato.VideoPlayer
 
                 //Debug.Log($"[[UdonSyncVideoPlayer] Time Format is (({_timeFormat}))");
                 _videoDuration = timeSpan.ToString(_timeFormat);
+                isStreaming = false;
             }
             else
             {
@@ -723,6 +728,7 @@ namespace UdonVR.Takato.VideoPlayer
                 _videoDuration = "Streaming!";
                 videoTimeBar.value = 1;
                 //PanelController.SetVideoTimeBarValue(1);
+                isStreaming = true;
             }
         }
 
@@ -808,7 +814,7 @@ namespace UdonVR.Takato.VideoPlayer
         public override void OnVideoError(VideoError videoError)
         {
             DebugOut("OnVideoError");
-            videoPlayer.Stop();
+            //videoPlayer.Stop();
             //Turn off forcePlay since video has error
             _forcePlay = false;
 
@@ -833,8 +839,8 @@ namespace UdonVR.Takato.VideoPlayer
                     {
                         DebugOut(string.Format("Video Error {0} >> {1}", "[VP05]Quest Unsupport", _syncedURL));
                         if (ErrorScreens[5] != null) ErrorScreens[5].SetActive(true);
+                        return;
                     }
-                    return;
                 }
                 switch (videoError)
                 {
@@ -864,6 +870,7 @@ namespace UdonVR.Takato.VideoPlayer
                         break;
 
                     default:
+                        DebugOut(string.Format("Video Error {0} >> {1}", "No Error returned", _syncedURL));
                         break;
                 }
             }
